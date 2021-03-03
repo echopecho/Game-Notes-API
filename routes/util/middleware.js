@@ -3,7 +3,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 module.exports = {
   checkCred,
-  verify
+  verify,
 };
 
 function checkCred(req, res, next) {
@@ -23,7 +23,7 @@ function verify(req, res, next) {
 
   if (token) {
     jwt.verify(token, jwtSecret, (err, decoded) => {
-      if (err) res.status(401).json({ message: "User not verified" });
+      if (err) res.status(401).json({ message: "Invalid token" });
 
       req.decodedToken = decoded;
       next();

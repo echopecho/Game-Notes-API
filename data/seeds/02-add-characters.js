@@ -1,4 +1,4 @@
-exports.seed = function(knex) {
+exports.seed = function (knex) {
   // Deletes ALL existing entries
   return knex("characters")
     .del()
@@ -6,7 +6,10 @@ exports.seed = function(knex) {
       const { id } = await knex("users").first();
       const campaigns = await knex("campaigns");
       const locations = await knex("locations");
-
+      const notes = await knex("notes as n").where(
+        "n.campaign_id",
+        campaigns[0].id
+      );
       const data = [
         {
           char_name: "Warion",
@@ -20,7 +23,7 @@ exports.seed = function(knex) {
           backstory:
             "Parents were killed by bats, so he fights nature dressed as a criminal",
           player_char: 1,
-          user_char: 1
+          user_char: 1,
         },
         {
           char_name: "Throden",
@@ -33,7 +36,7 @@ exports.seed = function(knex) {
           class: "Druid",
           backstory: "Doesn't understand a thing",
           player_char: 1,
-          user_char: 0
+          user_char: 0,
         },
         {
           char_name: "Johniffer",
@@ -46,7 +49,7 @@ exports.seed = function(knex) {
           class: null,
           backstory: "Filler text",
           player_char: 0,
-          user_char: 0
+          user_char: 0,
         },
         {
           char_name: "Karen",
@@ -59,7 +62,7 @@ exports.seed = function(knex) {
           class: null,
           backstory: "Filler text",
           player_char: 0,
-          user_char: 0
+          user_char: 0,
         },
         {
           char_name: "Fjord",
@@ -72,11 +75,27 @@ exports.seed = function(knex) {
           class: "Paladin",
           backstory: "Filler text",
           player_char: 0,
-          user_char: 0
-        }
+          user_char: 0,
+        },
       ];
 
       // Inserts seed entries
-      return knex("characters").insert(data);
+      await knex("characters").insert(data);
+      const characters = await knex("characters");
+      function randomIndex(chars) {
+        return Math.floor(Math.random() * chars.length);
+      }
+      const tags = [];
+      notes.forEach(async (note) => {
+        const charCopy = [...characters];
+        const randomInt = Math.floor(Math.random() * 3);
+        for (let i = 0; i <= randomInt; i++) {
+          const charIndex = randomIndex(charCopy);
+          const { id } = charCopy[charIndex];
+          tags.push({ note_id: note.id, char_id: id });
+          charCopy.splice(charIndex, 1);
+        }
+      });
+      await knex("notes-chars").insert(tags);
     });
 };

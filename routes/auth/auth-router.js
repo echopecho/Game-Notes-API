@@ -13,7 +13,12 @@ router.get("/verify", verify, async (req, res) => {
     const token = generateToken(user);
     res.status(200).json({ token, user });
   } catch (e) {
-    res.status(500).json({ message: "Token is no longer vaild." });
+    res
+      .status(500)
+      .json({
+        message:
+          "Something went wrong with the server. User could not be found.",
+      });
   }
 });
 

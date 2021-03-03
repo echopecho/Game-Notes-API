@@ -6,28 +6,36 @@ module.exports = {
   create,
   remove,
   update,
-  makeTags
+  makeTags,
 };
 
 async function getAll(id) {
   const notes = await findNotes(id);
+  const sortedNotes = sortNotesByDate(notes);
   // Temporary
   // return notes;
 
-  const fullNotes = await addTags(notes);
+  const fullNotes = await addTags(sortedNotes);
   return fullNotes;
 }
 
 async function getCampaignNotes(id) {
   const notes = await findNotesByCampaignID(id);
+  const sortedNotes = sortNotesByDate(notes);
 
-  const fullNotes = await addTags(notes);
+  const fullNotes = await addTags(sortedNotes);
   return fullNotes;
+}
+
+function sortNotesByDate(notes) {
+  return notes.sort((a, b) => {
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
 }
 
 async function addTags(notes) {
   return Promise.all(
-    notes.map(async note => {
+    notes.map(async (note) => {
       const tags = await findTagsByNote(note.id);
       note.tags = tags;
       return note;
@@ -45,29 +53,23 @@ async function create(note, tags = []) {
 }
 
 function remove(id) {
-  return db("notes")
-    .where({ id })
-    .del();
+  return db("notes").where({ id }).del();
 }
 
 async function update(note) {
-  const [{ id }] = await db("notes")
-    .where("id", note.id)
-    .update(note, ["id"]);
+  const [{ id }] = await db("notes").where("id", note.id).update(note, ["id"]);
   return findNoteByID(id);
 }
 
 async function makeTags(tags, noteID) {
-  await db.transaction(trx => {
-    const promises = tags.map(tag => {
+  await db.transaction((trx) => {
+    const promises = tags.map((tag) => {
       const newTag = {};
       newTag["note_id"] = noteID;
       newTag["char_id"] = tag;
       return db("notes-chars").insert(newTag);
     });
-    return Promise.all(promises)
-      .then(trx.commit)
-      .catch(trx.rollback);
+    return Promise.all(promises).then(trx.commit).catch(trx.rollback);
   });
 
   const finalTags = await findTagsByNote(noteID);
@@ -77,7 +79,7 @@ async function makeTags(tags, noteID) {
 
 function findTagsByNote(noteID) {
   return db("notes-chars as nc")
-    .select("c.id", "c.char_name as name")
+    .pluck("c.char_name")
     .where("n.id", noteID)
     .join("notes as n", "nc.note_id", "n.id")
     .join("characters as c", "nc.char_id", "c.id");
@@ -96,7 +98,7 @@ const noteSelect = [
   "l.name as location",
   "u.username as author",
   "n.author_id",
-  "n.campaign_id"
+  "n.campaign_id",
 ];
 
 function findNoteByID(id) {
