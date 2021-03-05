@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { verify } = require("../util/middleware.js");
 const Locations = require("./location-helper.js");
 
 router.get("/", async (req, res) => {
@@ -7,6 +8,18 @@ router.get("/", async (req, res) => {
     res.status(200).json(places);
   } catch (e) {
     res.status(500).json({ message: "Something went wrong with the server" });
+  }
+});
+
+router.get("/:id", verify, async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.decodedToken.subject;
+
+  try {
+    const locs = await Locations.getByCampaignId(user_id, id);
+    res.status(200).json(locs);
+  } catch (e) {
+    res.status(500).json({ message: "Something went wrong with the server." });
   }
 });
 

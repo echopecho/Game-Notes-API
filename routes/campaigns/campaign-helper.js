@@ -55,7 +55,7 @@ async function addJournies(campaigns) {
         .andWhere("j.author_id", campaign.author_id)
         .orderBy("created_at")
         .join("locations as l", "j.location_id", "l.id")
-        .select("l.name", "j.created_at");
+        .select("l.name", "j.created_at", "j.location_id");
       campaign.journey = journey;
       return campaign;
     })

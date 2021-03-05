@@ -4,12 +4,17 @@ module.exports = {
   getAll,
   create,
   update,
-  remove
+  remove,
+  getByCampaignId,
 };
 
 async function getAll() {
   const locations = db("locations");
   return locations;
+}
+
+function getByCampaignId(author_id, campaign_id) {
+  return db("locations").where({ author_id }).andWhere({ campaign_id });
 }
 
 async function create(location) {
@@ -25,13 +30,9 @@ async function update(location) {
 }
 
 function remove(id) {
-  return db("locations")
-    .where({ id })
-    .del();
+  return db("locations").where({ id }).del();
 }
 
 function findByID(id) {
-  return db("locations")
-    .where({ id })
-    .first();
+  return db("locations").where({ id }).first();
 }

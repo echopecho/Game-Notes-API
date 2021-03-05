@@ -13,6 +13,18 @@ router.get("/", verify, async (req, res) => {
   }
 });
 
+router.get("/:id", verify, async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.decodedToken.subject;
+
+  try {
+    const npcs = await Char.getByCampaignId(user_id, id);
+    res.status(200).json(npcs);
+  } catch (e) {
+    res.status(500).json({ message: "Something went wrong with the server." });
+  }
+});
+
 router.post("/", async (req, res) => {
   const { name } = req.body;
   try {
