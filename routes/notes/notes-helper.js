@@ -29,7 +29,7 @@ async function getCampaignNotes(id) {
 
 function sortNotesByDate(notes) {
   return notes.sort((a, b) => {
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 }
 
