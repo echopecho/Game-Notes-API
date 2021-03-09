@@ -8,17 +8,15 @@ const jwtSecret = process.env.JWT_SECRET;
 
 router.get("/verify", verify, async (req, res) => {
   const user_id = req.decodedToken?.subject;
+
   try {
     const user = await Users.findByID(user_id);
     const token = generateToken(user);
     res.status(200).json({ token, user });
   } catch (e) {
-    res
-      .status(500)
-      .json({
-        message:
-          "Something went wrong with the server. User could not be found.",
-      });
+    res.status(500).json({
+      message: "Something went wrong with the server. User could not be found.",
+    });
   }
 });
 

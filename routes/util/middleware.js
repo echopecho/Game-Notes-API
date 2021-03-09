@@ -23,7 +23,10 @@ function verify(req, res, next) {
 
   if (token) {
     jwt.verify(token, jwtSecret, (err, decoded) => {
-      if (err) res.status(401).json({ message: "Invalid token" });
+      if (err) {
+        res.status(401).json({ message: "Invalid token" });
+        return;
+      }
 
       req.decodedToken = decoded;
       next();
